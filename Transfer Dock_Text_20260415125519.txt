@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HR TRANSPORTER ADDA</title>
+    
+    <link rel="icon" type="image/png" href="1000025757.png">
+    <link rel="apple-touch-icon" href="1000025757.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); }
+        #authScreen {
+            background: #000 url('1000025683.png') no-repeat center center;
+            background-size: cover;
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
+        }
+        .glass-box { background: rgba(255, 255, 255, 0.95); border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .tab-active { color: #1e40af !important; border-top: 3px solid #1e40af; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans antialiased">
+
+    <div id="authScreen">
+        <div id="loginGate" class="flex justify-center mb-10">
+            <button onclick="openLoginBox()" class="bg-black text-white px-12 py-4 rounded-full font-black shadow-2xl border-2 border-white uppercase tracking-widest active:scale-95 transition">LOGIN</button>
+        </div>
+        
+        <div id="loginForm" class="glass-box hidden animate-bounce-in">
+            <h2 class="text-xl font-black text-blue-900 mb-5 text-center uppercase underline">Entry Verification</h2>
+            <input type="text" id="regName" placeholder="Full Name" class="w-full p-4 border-2 rounded-2xl mb-3 font-bold">
+            <input type="tel" id="regPhone" placeholder="Mobile Number (10 Digit)" class="w-full p-4 border-2 rounded-2xl mb-5 font-bold">
+            <button onclick="handleRegister()" class="w-full gradient-bg text-white font-black py-4 rounded-2xl shadow-lg uppercase">Verify & Enter ➔</button>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden">
+        <header class="gradient-bg p-4 sticky top-0 z-50 text-white shadow-xl">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-lg font-black italic">HR TRSPOTER ADDA</h1>
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-tighter">BY HANUMAN BALARA</p>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="shareApp()" class="text-xl text-green-400"><i class="fa-brands fa-whatsapp"></i></button>
+                    <button onclick="toggleModal('helpModal')" class="text-xl text-yellow-400"><i class="fa-solid fa-headset"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <main id="appBody" class="p-4 pb-24 max-w-lg mx-auto"></main>
+
+        <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around items-center py-2 shadow-2xl z-[100]">
+            <button onclick="showPage('market')" id="nav-market" class="flex flex-col items-center text-gray-400"><i class="fa-solid fa-store text-lg"></i><span class="text-[9px] font-bold">Market</span></button>
+            <button onclick="showPage('addLoad')" id="nav-addLoad" class="flex flex-col items-center text-gray-400"><i class="fa-solid fa-box-open text-lg"></i><span class="text-[9px] font-bold">Upload Load</span></button>
+            <button onclick="showPage('addTruck')" id="nav-addTruck" class="flex flex-col items-center text-gray-400"><i class="fa-solid fa-truck-moving text-lg"></i><span class="text-[9px] font-bold">Truck Owner</span></button>
+            <button onclick="showPage('myData')" id="nav-myData" class="flex flex-col items-center text-gray-400"><i class="fa-solid fa-user-gear text-lg"></i><span class="text-[9px] font-bold">Mera Data</span></button>
+            <button onclick="openAdmin()" id="nav-admin" class="flex flex-col items-center text-gray-400"><i class="fa-solid fa-shield-halved text-lg"></i><span class="text-[9px] font-bold">Admin</span></button>
+        </nav>
+    </div>
+
+    <div id="helpModal" class="fixed inset-0 bg-black/80 hidden z-[1000] flex items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-[40px] w-full max-w-sm text-center">
+            <h2 class="text-2xl font-black mb-6 text-blue-900 underline">Support</h2>
+            <a href="tel:8059104491" class="block bg-green-600 text-white font-black py-4 rounded-2xl mb-4 italic">CALL: 8059104491</a>
+            <a href="https://instagram.com/jajbaati_jaat_7" target="_blank" class="block bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black py-4 rounded-2xl mb-6 italic text-sm">INSTAGRAM ID</a>
+            <button onclick="toggleModal('helpModal')" class="font-bold text-red-500 text-xs">CLOSE</button>
+        </div>
+    </div>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWrA5MYAiRfAk1woQmeOhzgCWOOLmcklc",
+        authDomain: "hr-trspoter-adda-357b5.firebaseapp.com",
+        projectId: "hr-trspoter-adda-357b5",
+        storageBucket: "hr-trspoter-adda-357b5.firebasestorage.app",
+        messagingSenderId: "243348619388",
+        appId: "1:243348619388:web:56ff2aa4654a9e13e209f9",
+        databaseURL: "https://hr-trspoter-adda-357b5-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentUser = null;
+    let adminPIN = "iloveyourenu";
+
+    // Start Logic
+    function checkUser() {
+        const saved = localStorage.getItem('hr_user');
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            showPage('market');
+        }
+    }
+    checkUser();
+
+    function openLoginBox() {
+        document.getElementById('loginGate').classList.add('hidden');
+        document.getElementById('loginForm').classList.remove('hidden');
+    }
+
+    function handleRegister() {
+        const n = document.getElementById('regName').value.trim();
+        const p = document.getElementById('regPhone').value.trim();
+        if(n && p.length === 10) {
+            const user = { name: n, phone: p };
+            localStorage.setItem('hr_user', JSON.stringify(user));
+            db.ref('users/' + p).set(user).then(() => location.reload());
+        } else { alert("Sahi name aur 10-digit phone bharein!"); }
+    }
+
+    function showPage(page) {
+        const body = document.getElementById('appBody');
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('tab-active'));
+        document.getElementById('nav-' + page).classList.add('tab-active');
+
+        if(page === 'market') renderMarket();
+        if(page === 'addLoad') renderLoadForm();
+        if(page === 'addTruck') renderTruckForm();
+        if(page === 'myData') renderMyData();
+    }
+
+    // Market with Filters
+    function renderMarket() {
+        document.getElementById('appBody').innerHTML = `
+            <div class="mb-4 flex gap-2">
+                <input type="text" id="mFilter" oninput="filterList()" placeholder="Address Filter (Ex: Hisar)" class="flex-1 p-3 rounded-xl border-2 font-bold outline-none focus:border-blue-600">
+            </div>
+            <div class="flex gap-4 mb-6">
+                <button onclick="toggleMarket('loads')" id="btn-m-loads" class="flex-1 py-2 bg-blue-900 text-white rounded-lg font-black text-xs">LOADS (Maal)</button>
+                <button onclick="toggleMarket('trucks')" id="btn-m-trucks" class="flex-1 py-2 bg-slate-200 text-slate-600 rounded-lg font-black text-xs">TRUCKS (Gaadi)</button>
+            </div>
+            <div id="marketList" class="space-y-4"></div>
+        `;
+        toggleMarket('loads');
+    }
+
+    function toggleMarket(type) {
+        const list = document.getElementById('marketList');
+        const lBtn = document.getElementById('btn-m-loads');
+        const tBtn = document.getElementById('btn-m-trucks');
+        
+        lBtn.className = type === 'loads' ? "flex-1 py-2 bg-blue-900 text-white rounded-lg font-black text-xs" : "flex-1 py-2 bg-slate-200 text-slate-600 rounded-lg font-black text-xs";
+        tBtn.className = type === 'trucks' ? "flex-1 py-2 bg-orange-600 text-white rounded-lg font-black text-xs" : "flex-1 py-2 bg-slate-200 text-slate-600 rounded-lg font-black text-xs";
+
+        db.ref('posts').orderByChild('type').equalTo(type).on('value', snap => {
+            list.innerHTML = "";
+            snap.forEach(c => {
+                const item = c.val();
+                list.innerHTML = renderCard(item, false) + list.innerHTML;
+            });
+        });
+    }
+
+    function renderCard(p, isMine, key) {
+        return `<div class="bg-white p-5 rounded-3xl shadow-sm border-l-8 ${p.type === 'loads' ? 'border-blue-900':'border-orange-500'}">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] font-black uppercase text-blue-900">${p.type}</span>
+                <span class="text-[9px] font-bold text-gray-400">${new Date(p.time).toLocaleDateString()}</span>
+            </div>
+            <h3 class="font-black text-lg text-slate-800">${p.from} ➔ ${p.to}</h3>
+            <p class="text-xs font-bold text-gray-500 mb-4">${p.details}</p>
+            <div class="flex justify-between items-center">
+                <div class="text-[10px] font-bold">By: ${p.userName}</div>
+                <div class="flex gap-2">
+                    ${isMine ? `<button onclick="deletePost('${key}')" class="text-red-500 p-2"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    <a href="tel:${p.userPhone}" class="bg-green-600 text-white px-6 py-2 rounded-xl text-xs font-black shadow-lg">CALL</a>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function renderLoadForm() {
+        document.getElementById('appBody').innerHTML = `
+            <div class="bg-white p-6 rounded-3xl shadow-lg mt-4 border-t-8 border-blue-900">
+                <h2 class="text-xl font-black mb-6 text-blue-900">UPLOAD LOAD (MAAL)</h2>
+                <input type="text" id="f_from" placeholder="From (Starting City)" class="w-full p-4 border rounded-xl mb-3 font-bold">
+                <input type="text" id="f_to" placeholder="To (Destination City)" class="w-full p-4 border rounded-xl mb-3 font-bold">
+                <input type="text" id="f_type" placeholder="Maal Type & Weight" class="w-full p-4 border rounded-xl mb-3 font-bold">
+                <input type="text" id="f_truck" placeholder="Required Truck Type" class="w-full p-4 border rounded-xl mb-6 font-bold">
+                <button onclick="savePost('loads')" class="w-full gradient-bg text-white py-4 rounded-2xl font-black shadow-xl">POST LOAD ➔</button>
+            </div>
+        `;
+    }
+
+    function renderTruckForm() {
+        document.getElementById('appBody').innerHTML = `
+            <div class="bg-white p-6 rounded-3xl shadow-lg mt-4 border-t-8 border-orange-500">
+                <h2 class="text-xl font-black mb-6 text-orange-600">TRUCK OWNER UPLOAD</h2>
+                <input type="text" id="t_from" placeholder="Current Location" class="w-full p-4 border rounded-xl mb-3 font-bold">
+                <input type="text" id="t_to" placeholder="Going To (Optional)" class="w-full p-4 border rounded-xl mb-3 font-bold">
+                <input type="text" id="t_type" placeholder="Truck Type (Ex: 14 Wheeler)" class="w-full p-4 border rounded-xl mb-6 font-bold">
+                <button onclick="savePost('trucks')" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-xl">POST TRUCK ➔</button>
+            </div>
+        `;
+    }
+
+    function savePost(type) {
+        const data = type === 'loads' ? {
+            from: document.getElementById('f_from').value,
+            to: document.getElementById('f_to').value,
+            details: `${document.getElementById('f_type').value} | Truck: ${document.getElementById('f_truck').value}`
+        } : {
+            from: document.getElementById('t_from').value,
+            to: document.getElementById('t_to').value || "Anywhere",
+            details: `Truck: ${document.getElementById('t_type').value}`
+        };
+
+        if(!data.from || !data.details) return alert("Puri jankari bharein!");
+
+        db.ref('posts').push({
+            ...data, type,
+            userName: currentUser.name,
+            userPhone: currentUser.phone,
+            time: Date.now()
+        }).then(() => showPage('market'));
+    }
+
+    function renderMyData() {
+        db.ref('posts').on('value', snap => {
+            const body = document.getElementById('appBody');
+            body.innerHTML = "<h2 class='text-xl font-black mb-6 text-blue-900 uppercase underline'>Mera Uploaded Data</h2>";
+            snap.forEach(c => {
+                if(c.val().userPhone === currentUser.phone) {
+                    body.innerHTML += renderCard(c.val(), true, c.key);
+                }
+            });
+        });
+    }
+
+    function deletePost(key) { if(confirm("Kya aap ise delete karna chahte hain?")) db.ref('posts/' + key).remove(); }
+
+    // --- ADMIN SYSTEM ---
+    function openAdmin() {
+        const pin = prompt("Enter Admin Password:");
+        if(pin === adminPIN) {
+            renderAdminPage();
+        } else { alert("Galat Password!"); }
+    }
+
+    function renderAdminPage() {
+        document.getElementById('appBody').innerHTML = `
+            <div class="space-y-4">
+                <button onclick="adminShowUsers()" class="w-full p-4 bg-slate-800 text-white font-black rounded-xl">1. USERS LIST</button>
+                <button onclick="adminShowAllData()" class="w-full p-4 bg-slate-800 text-white font-black rounded-xl">2. ALL APP DATA</button>
+                <div class="p-4 bg-white rounded-xl shadow border-2">
+                    <p class="font-bold text-xs mb-2">3. AUTO DELETE OLD DATA</p>
+                    <input type="number" id="cleanDays" placeholder="Enter Days (Ex: 7)" class="w-full p-2 border mb-2 rounded">
+                    <button onclick="adminAutoClean()" class="w-full py-2 bg-red-600 text-white font-black rounded-lg text-xs tracking-widest">CLEAN OLD DATA NOW</button>
+                </div>
+                <button onclick="adminChangePass()" class="w-full p-4 bg-slate-800 text-white font-black rounded-xl text-xs">4. CHANGE ADMIN PASSWORD</button>
+            </div>
+            <div id="adminView" class="mt-8 space-y-4"></div>
+        `;
+    }
+
+    function adminShowUsers() {
+        const view = document.getElementById('adminView');
+        db.ref('users').once('value', snap => {
+            view.innerHTML = "<h3 class='font-black underline'>REGISTERED USERS</h3>";
+            snap.forEach(c => {
+                view.innerHTML += `<div class="p-3 bg-white border-2 rounded-xl text-xs font-bold">${c.val().name} | ${c.val().phone}</div>`;
+            });
+        });
+    }
+
+    function adminShowAllData() {
+        const view = document.getElementById('adminView');
+        db.ref('posts').on('value', snap => {
+            view.innerHTML = "<h3 class='font-black underline'>ALL POSTS (DELETE ABLE)</h3>";
+            snap.forEach(c => {
+                view.innerHTML += `<div class="p-3 bg-white border-2 rounded-xl flex justify-between items-center text-[10px] font-bold">
+                    <span>${c.val().from} ➔ ${c.val().to} (${c.val().userName})</span>
+                    <button onclick="deletePost('${c.key}')" class="text-red-600 px-2"><i class="fa-solid fa-trash-can"></i></button>
+                </div>`;
+            });
+        });
+    }
+
+    function adminAutoClean() {
+        const days = document.getElementById('cleanDays').value;
+        if(!days) return alert("Din bharein!");
+        const threshold = Date.now() - (days * 24 * 60 * 60 * 1000);
+        db.ref('posts').once('value', snap => {
+            snap.forEach(c => {
+                if(c.val().time < threshold) db.ref('posts/' + c.key).remove();
+            });
+            alert("Puraana data delete ho gaya!");
+        });
+    }
+
+    function adminChangePass() {
+        const old = prompt("Purana Password daalein:");
+        if(old === adminPIN) {
+            const n = prompt("Naya Password set karein:");
+            if(n) { adminPIN = n; alert("Password Changed!"); }
+        }
+    }
+
+    function shareApp() {
+        const text = `*HR TRANSPORTER ADDA*\nDownload APK: ${window.location.href}\nBy Hanuman Balara`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+    
+    function filterList() {
+        const f = document.getElementById('mFilter').value.toLowerCase();
+        const cards = document.querySelectorAll('#marketList > div');
+        cards.forEach(c => {
+            c.style.display = c.innerText.toLowerCase().includes(f) ? 'block' : 'none';
+        });
+    }
+</script>
+</body>
+</html>
